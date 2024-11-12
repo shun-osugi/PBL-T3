@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "462758000962",
+    "project_id": "pblt3-42e60",
+    "storage_bucket": "pblt3-42e60.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:462758000962:android:11e8b86eb37c1659eaf0db",
+        "android_client_info": {
+          "package_name": "io.github.shun.osugi.pblt3.android"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQokUUZ4q_7p5z3ljfGSJe7BLcsr1_YK4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
