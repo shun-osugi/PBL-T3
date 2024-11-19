@@ -1,27 +1,28 @@
 package io.github.shun.osugi.pblt3.android;
 
+
 import android.os.Bundle;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.HashMap;
 import java.util.Map;
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import android.widget.TextView;
+//時間割に関するプログラム
+
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "FirestoreExample";
     private FirebaseFirestore db;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_attendance);
+
 
         // Firebaseの初期化
         FirebaseApp.initializeApp(this);
@@ -31,6 +32,13 @@ public class MainActivity extends AppCompatActivity {
 
         // Firestoreにデータを追加するメソッドを呼び出し
         addData();
+
+        // ヘッダーのタイトルを動的に変更
+        TextView headerTitle = findViewById(R.id.headerTitle);
+        headerTitle.setText("時間割");
+
+        // フッターのクリックイベントを設定
+        FooterUtils.setupFooter(this);
     }
     private void addData() {
         // Firestoreに保存するデータ
