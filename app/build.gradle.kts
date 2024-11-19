@@ -28,13 +28,14 @@ android {
     }
     compileOptions {
         //vafgvad
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        isCoreLibraryDesugaringEnabled = true
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 
 dependencies {
-
+    coreLibraryDesugaring (libs.desuger.jdk.libs)
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
     implementation(libs.appcompat)
     implementation(libs.material)
