@@ -10,6 +10,12 @@
         android:id="@+id/headerLayout"
         layout="@layout/header"
         android:layout_alignParentTop="true"/>
+    <!--ーーーーーこれより下に書くーーーーー-->
+
+
+
+
+    <!--ーーーーーこれより上に書くーーーーー-->
     <include
         android:id="@+id/footerLayout"
         layout="@layout/footer"

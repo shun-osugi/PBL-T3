@@ -2,7 +2,6 @@ package io.github.shun.osugi.pblt3.android;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.view.View;
 import android.widget.Button;
 
 public class FooterUtils {
@@ -14,16 +13,22 @@ public class FooterUtils {
         buttonAttendance.setOnClickListener(v -> {
             Intent intent = new Intent(activity, AttendanceActivity.class);
             activity.startActivity(intent);
+            // アニメーションを消す
+            activity.overridePendingTransition(0, 0);
         });
 
         buttonSettings.setOnClickListener(v -> {
             Intent intent = new Intent(activity, SettingsActivity.class);
             activity.startActivity(intent);
+            // アニメーションを消す
+            activity.overridePendingTransition(0, 0);
         });
 
         buttonMain.setOnClickListener(v -> {
             Intent intent = new Intent(activity, MainActivity.class);
             activity.startActivity(intent);
+            // アニメーションを消す
+            activity.overridePendingTransition(0, 0);
         });
     }
 }

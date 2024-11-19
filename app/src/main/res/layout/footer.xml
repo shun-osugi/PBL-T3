@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_weight="1"
-            android:text="Attendance" />
+            android:text="出席確認" />
 
         <Button
             android:id="@+id/buttonMain"
@@ -28,16 +28,14 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_weight="1"
-            android:text="Main" />
+            android:text="時間割" />
 
         <Button
             android:id="@+id/buttonSettings"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Settings" />
-
-
+            android:text="設定" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
