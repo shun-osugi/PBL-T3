@@ -25,7 +25,7 @@ public class FooterUtils {
         });
 
         buttonMain.setOnClickListener(v -> {
-            Intent intent = new Intent(activity, MainActivity.class);
+            Intent intent = new Intent(activity, TimetableActivity.class);
             activity.startActivity(intent);
             // アニメーションを消す
             activity.overridePendingTransition(0, 0);

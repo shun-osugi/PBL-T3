@@ -1,20 +1,19 @@
 package io.github.shun.osugi.pblt3.android;
 
 
-import android.content.Intent;
 import android.os.Bundle;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.HashMap;
 import java.util.Map;
-import android.widget.TextView;
 //時間割に関するプログラム
 
-public class MainActivity extends AppCompatActivity {
+public class TimetableActivity extends AppCompatActivity {
     private static final String TAG = "FirestoreExample";
     private FirebaseFirestore db;
 
@@ -23,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_attendance);
+
 
         // Firebaseの初期化
         FirebaseApp.initializeApp(this);
