@@ -12,15 +12,30 @@
         android:layout_alignParentTop="true"/>
     <!--ーーーーーこれより下に書くーーーーー-->
 
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"/>
+
+    <TableLayout
+        android:id="@+id/table_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/headerLayout"
+        app:layout_constraintBottom_toTopOf="@+id/footerLayout"
+        android:layout_marginTop="0dp"
+        android:layout_marginBottom="32dp"
+        android:padding="16dp"
+        android:stretchColumns="*"/>
 
     <TextView
+        android:id="@+id/error_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:textColor="@color/red"
+        android:visibility="gone"
+        android:layout_gravity="center"/>
 
     <!--ーーーーーこれより上に書くーーーーー-->
     <include
