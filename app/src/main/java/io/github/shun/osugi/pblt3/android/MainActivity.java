@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+
         // 通知チャネルの作成
         createNotificationChannel();
 
