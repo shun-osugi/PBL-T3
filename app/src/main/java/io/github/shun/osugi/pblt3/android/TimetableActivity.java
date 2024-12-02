@@ -1,7 +1,7 @@
 package io.github.shun.osugi.pblt3.android;
 
 
-import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.util.TypedValue;
@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TableLayout;
@@ -24,7 +25,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 //時間割に関するプログラム
@@ -32,10 +32,10 @@ import java.util.Map;
 public class TimetableActivity extends AppCompatActivity {
     private static final String TAG = "FirestoreExample";
     private FirebaseFirestore db;
-    private String documentId;
+    private String userID;
     private ProgressBar progressBar;
     private TableLayout tableLayout;
-
+    final String[] daysOfWeek = {"月", "火", "水", "木", "金", "土", "日"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,13 +57,13 @@ public class TimetableActivity extends AppCompatActivity {
         // フッターのクリックイベントを設定
         FooterUtils.setupFooter(this);
 
-        documentId = "sample（ユーザーID）";
+        userID = "sample（ユーザーID）";
         loadTimetable();
     }
 
     private void loadTimetable() {
         progressBar.setVisibility(View.VISIBLE);
-        db.collection("user").document(documentId).get().addOnCompleteListener(task -> {
+        db.collection("user").document(userID).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot snapshot = task.getResult();
                 if (snapshot.exists()) {
@@ -71,9 +71,9 @@ public class TimetableActivity extends AppCompatActivity {
                     int days = ((Long) data.getOrDefault("表示する曜日", 5L)).intValue();
                     int classes = ((Long) data.getOrDefault("最大授業数", 5L)).intValue();
 
-                    populateTable(days, classes, data);
+                    createTable(days, classes, data);
                 } else {
-                    db.collection("students").document(documentId).set(Map.of(
+                    db.collection("students").document(userID).set(Map.of(
                             "表示する曜日", 5,
                             "最大授業数", 5
                     ));
@@ -87,9 +87,8 @@ public class TimetableActivity extends AppCompatActivity {
         });
     }
 
-    private void populateTable(int days, int classes, Map<String, Object> data) {
+    private void createTable(int days, int classes, Map<String, Object> data) {
         tableLayout.removeAllViews();
-        final String[] daysOfWeek = {"月", "火", "水", "木", "金", "土", "日"};
         String today = getToday();
 
         // 画面サイズを取得
@@ -164,19 +163,70 @@ public class TimetableActivity extends AppCompatActivity {
                 linearLayout.setTextAlignment(Button.TEXT_ALIGNMENT_CENTER);
                 linearLayout.setBackgroundResource(R.drawable.border0);
                 tableRow.addView(linearLayout);
+                addClass(linearLayout, daysOfWeek[j], i+1);
             }
             tableLayout.addView(tableRow);
         }
     }
 
-    private void onCellClicked(String day, int period, String subjectName) {
-        /*Intent intent = new Intent(this, subjectName == null
-                ? SubjectDetailsActivity.class
-                : SubjectUpdateActivity.class);
-        intent.putExtra("day", day);
-        intent.putExtra("period", period);
-        intent.putExtra("subject", subjectName);
-        startActivity(intent);*/
+    private void addClass(LinearLayout linearLayout, String day, int period) {
+        db.collection("timetable").document(userID).collection(day).document(String.valueOf(period)).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot snapshot = task.getResult();
+                if (snapshot.exists()) {
+                    Map<String, Object> data = snapshot.getData();
+                    // データ取得
+                    String subjectName = snapshot.contains("教科名") ? snapshot.getString("教科名") : "不明";
+                    String attendanceMethod = snapshot.contains("出席方法") ? snapshot.getString("出席方法") : "不明";
+                    int notificationTime = ((Long) data.getOrDefault("通知時間", -10L)).intValue();
+                    int lateTime = ((Long) data.getOrDefault("遅刻時間", 20L)).intValue();
+                    Boolean danger = snapshot.contains("危険") ? snapshot.getBoolean("危険") : false;
+                    Map<String, Object> scheduleMap = (Map<String, Object>) snapshot.get("授業日程");
+                    if (scheduleMap != null) {
+                        for (String key : scheduleMap.keySet()) {
+                            Map<String, Object> lesson = (Map<String, Object>) scheduleMap.get(key);
+                            String lessonDate = (String) lesson.get("授業日");
+                            Boolean attendance = (Boolean) lesson.get("出欠");
+                            Boolean late = (Boolean) lesson.get("遅刻");
+                        }
+                    }
+
+                    // ボタンを追加
+                    Button classButton = new Button(this);
+                    classButton.setText(subjectName);
+                    classButton.setLayoutParams(new LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT
+                    ));
+                    classButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.cyan)));
+
+                    // 科目の詳細ダイアログを表示
+                    classButton.setOnClickListener(showClassDetails -> {
+
+                    });
+                    linearLayout.addView(classButton);
+
+                } else {
+
+                    // ボタンを追加
+                    Button emptyButton = new Button(this);
+                    emptyButton.setText("未登録");
+                    emptyButton.setLayoutParams(new LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT
+                    ));
+
+                    // 科目の追加ダイアログを表示
+                    emptyButton.setOnClickListener(addClassDetail -> {
+
+                    });
+                    linearLayout.addView(emptyButton);
+                }
+            } else {
+                // Handle error
+                showError("Failed to load timetable.");
+            }
+        });
     }
 
     private TextView createTextView(String text) {
