@@ -69,12 +69,12 @@ public class MainActivity extends AppCompatActivity {
         PendingIntent noPendingIntent = PendingIntent.getBroadcast(this, 2, noIntent, PendingIntent.FLAG_IMMUTABLE);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_launcher_foreground) // 通知アイコン
+                .setSmallIcon(R.mipmap.ic_launcher_foreground) // 通知アイコン
                 .setContentTitle("Simple Notification")          // 通知タイトル
                 .setContentText("This is a simple notification.") // 通知メッセージ
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .addAction(R.drawable.ic_launcher_foreground, "OK", okPendingIntent) // OKボタン
-                .addAction(R.drawable.ic_launcher_foreground, "NO", noPendingIntent); // NOボタン
+                .addAction(R.mipmap.ic_launcher_foreground, "OK", okPendingIntent) // OKボタン
+                .addAction(R.mipmap.ic_launcher_foreground, "NO", noPendingIntent); // NOボタン
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
         notificationManager.notify(1, builder.build());
