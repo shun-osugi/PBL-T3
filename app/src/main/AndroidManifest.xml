@@ -27,7 +27,9 @@
             android:exported="false" />
         <activity
             android:name=".MainActivity"
-            android:exported="true" />
+            android:exported="true" >
+
+        </activity>
         <activity
             android:name=".TimetableActivity"
             android:exported="true">
@@ -40,7 +42,6 @@
             android:enabled="true"
             android:exported="false"/>
 
-        <!--        <receiver android:name=".NoticeReceiver" />-->
     </application>
 
 </manifest>
