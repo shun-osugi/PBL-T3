@@ -12,20 +12,27 @@
         android:layout_alignParentTop="true"/>
     <!--ーーーーーこれより下に書くーーーーー-->
 
+
     <Button
         android:id="@+id/notifyButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Show Notification" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="116dp"
+        android:text="Show Notification"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/subjectSpinner" />
+
+
+    <Spinner
+        android:id="@+id/subjectSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="464dp"
+        android:spinnerMode="dropdown"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:layout_editor_absoluteX="-16dp" />
+
 
     <!--ーーーーーこれより上に書くーーーーー-->
     <include
