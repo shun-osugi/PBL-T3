@@ -1,0 +1,10 @@
+<resources>
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- その他のスタイル -->
+    </style>
+
+    <!-- Spinnerモードを使用するDatePickerのスタイル -->
+    <style name="SpinnerDatePicker" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:datePickerMode">spinner</item>
+    </style>
+</resources>
