@@ -15,7 +15,6 @@ import androidx.fragment.app.DialogFragment;
 import java.util.Locale;
 
 import io.github.shun.osugi.pblt3.android.databinding.ActivityAdvanceNoticeBinding;
-import io.github.shun.osugi.pblt3.android.databinding.ActivitySupplementaryClassBinding;
 
 public class Advance_Notice extends AppCompatActivity implements DatePickerDialog.OnDateSetListener  {
 
