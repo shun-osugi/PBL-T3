@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">PBL_T3</string>
+
+    <string name="no_date">No Data</string>
+    <string name="pick_date">Pick Date</string>
+
+    <string-array name="classzone">
+        <item>1限目</item>
+        <item>2限目</item>
+        <item>3限目</item>
+        <item>4限目</item>
+        <item>5限目</item>
+        <item>6限目</item>
+        <item>7限目</item>
+    </string-array>
+
 </resources>
