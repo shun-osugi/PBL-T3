@@ -13,21 +13,21 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.firebase.firestore.core.ActivityScope;
 
-import io.github.shun.osugi.pblt3.android.databinding.ActivitySupplementaryClassBinding;
+//import io.github.shun.osugi.pblt3.android.databinding.ActivitySupplementaryClassBinding;
 
 public class SupplementaryClass extends AppCompatActivity {
 
-    private ActivitySupplementaryClassBinding binding;
+    //private ActivitySupplementaryClassBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
 
-        binding = ActivitySupplementaryClassBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+        //binding = ActivitySupplementaryClassBinding.inflate(getLayoutInflater());
+        //setContentView(binding.getRoot());
 
-        setContentView(R.layout.activity_supplementary_class);
+        //setContentView(R.layout.activity_supplementary_class);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -35,9 +35,9 @@ public class SupplementaryClass extends AppCompatActivity {
         });
 
         // ドラムロール式DatePickerのクリックリスナーを設定
-        binding.datePickerActions.setOnClickListener(v -> {
-            DatePickerHelper.showRollerDatePicker(this, binding.date);
-        });
+        //binding.datePickerActions.setOnClickListener(v -> {
+        //   DatePickerHelper.showRollerDatePicker(this, binding.date);
+       // });
 
     }
 }
