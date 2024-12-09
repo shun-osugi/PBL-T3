@@ -14,6 +14,25 @@
 
 
     <Button
+        android:id="@+id/absenceConfirmButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="64dp"
+        android:layout_marginTop="180dp"
+        android:text="一日欠席確認"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/warningButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="欠格一歩手前"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/absenceConfirmButton"
+        app:layout_constraintTop_toTopOf="@+id/absenceConfirmButton" />
+
+    <Button
         android:id="@+id/notifyButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -24,17 +43,17 @@
         app:layout_constraintTop_toTopOf="@+id/subjectSpinner" />
 
 
+    <!--ーーーーーこれより上に書くーーーーー-->
+
     <Spinner
         android:id="@+id/subjectSpinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="464dp"
+        android:layout_marginBottom="368dp"
         android:spinnerMode="dropdown"
         app:layout_constraintBottom_toBottomOf="parent"
-        tools:layout_editor_absoluteX="-16dp" />
+        tools:layout_editor_absoluteX="0dp" />
 
-
-    <!--ーーーーーこれより上に書くーーーーー-->
     <include
         android:id="@+id/footerLayout"
         layout="@layout/footer"
