@@ -20,6 +20,7 @@ import android.app.PendingIntent;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.widget.ProgressBar;
+import android.widget.RemoteViews;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TextView;
@@ -123,6 +124,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // 一日欠席確認ボタンの設定
+        Button absenceConfirmButton = findViewById(R.id.absenceConfirmButton);
+        absenceConfirmButton.setOnClickListener(v -> {
+            showAbsenceConfirmationNotification();
+        });
+
+
+        // 欠格一歩手前ボタンの設定
+        Button warningButton = findViewById(R.id.warningButton);
+        warningButton.setOnClickListener(v -> {
+            sendWarningNotification("欠格一歩手前",  3);
+        });
+
+
+
         // 通知チャネルの作成
         createNotificationChannel();
     }
@@ -217,4 +233,67 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+    private void showAbsenceConfirmationNotification() {
+        // 出席ボタンのクリック処理
+        Intent attendanceIntent = new Intent(this, NotificationReceiver.class);
+        attendanceIntent.putExtra("button", "出席");
+        PendingIntent attendancePendingIntent = PendingIntent.getBroadcast(
+                this, 4, attendanceIntent, PendingIntent.FLAG_IMMUTABLE);
+
+        // 欠席ボタンのクリック処理
+        Intent absenceIntent = new Intent(this, NotificationReceiver.class);
+        absenceIntent.putExtra("button", "欠席");
+        PendingIntent absencePendingIntent = PendingIntent.getBroadcast(
+                this, 5, absenceIntent, PendingIntent.FLAG_IMMUTABLE);
+
+        // 通知を作成
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.mipmap.ic_launcher_foreground) // 通知アイコン
+                .setContentTitle("1日欠席確認")
+                .setContentText("今日1日欠席しますか？")
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setAutoCancel(true)
+                .addAction(R.mipmap.ic_launcher_foreground, "出席", attendancePendingIntent) // 出席ボタン
+                .addAction(R.mipmap.ic_launcher_foreground, "欠席", absencePendingIntent);   // 欠席ボタン
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        notificationManager.notify(4, builder.build());
+    }
+
+    // 通知を送信するメソッドを修正
+    private void sendWarningNotification(String title, int notificationId) {
+        // スピナーから選択された要素を取得
+        Spinner subjectSpinner = findViewById(R.id.subjectSpinner);
+        String selectedSubject = (String) subjectSpinner.getSelectedItem();
+
+        // スピナーで選ばれた教科名をタイトルに追加
+        if (selectedSubject != null) {
+            title = selectedSubject + "が欠格寸前です！";
+        }
+
+        // 通知用のカスタムレイアウトを作成
+        RemoteViews customView = new RemoteViews(getPackageName(), R.layout.custom_notification);
+
+        // 通知のタイトルとメッセージを設定
+        customView.setTextViewText(R.id.notification_title, title); // タイトルに選ばれた教科名を反映
+
+        // 通知を作成
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.mipmap.ic_launcher_foreground)  // 通知アイコン
+                .setCustomContentView(customView)  // カスタムビューを設定
+                .setPriority(NotificationCompat.PRIORITY_HIGH) // 優先度を高くする
+                .setDefaults(NotificationCompat.DEFAULT_ALL)  // 通知音、バイブレーション、ライトを使う
+                .setColor(ContextCompat.getColor(this, android.R.color.holo_red_light)) // 通知の色を赤に設定
+                .setCategory(NotificationCompat.CATEGORY_MESSAGE)  // メッセージカテゴリ（ポップアップに必要）
+                .setAutoCancel(true);  // タップで自動キャンセル
+
+        // 通知を表示
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        notificationManager.notify(notificationId, builder.build());
+        Log.d("Notification", "カスタム通知が送信されました: ");
+    }
+
+
+
 }
