@@ -31,6 +31,11 @@ public class NotificationReceiver extends BroadcastReceiver {
 
         if ("休講".equals(buttonType)) {
             Log.i(TAG, "休講が選択されたため、データを保存しません");
+            // Advance_Notice アクティビティに遷移するIntentを作成
+            Intent advanceNoticeIntent = new Intent(context, Advance_Notice.class);
+            advanceNoticeIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // 新しいタスクとして起動
+            context.startActivity(advanceNoticeIntent);
+
             return; // 保存処理をスキップ
         }
 
