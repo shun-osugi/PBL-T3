@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import androidx.core.app.NotificationManagerCompat;
+
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
@@ -24,6 +26,11 @@ public class NotificationReceiver extends BroadcastReceiver {
         int period = intent.getIntExtra("period", -1); // 時限
         String buttonType = intent.getStringExtra("button"); // ボタンの種類（出席・欠席・休講）
 
+        if ("出席".equals(buttonType) || "欠席".equals(buttonType)) {
+            // **1日欠席通知を削除する処理**
+            cancelNotification(context, 4); // 1日欠席通知のIDをキャンセル
+        }
+
         if (period == -1 || day == null || buttonType == null) {
             Log.e(TAG, "不正なデータ: 必要な情報が不足しています");
             return;
@@ -36,7 +43,9 @@ public class NotificationReceiver extends BroadcastReceiver {
             advanceNoticeIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // 新しいタスクとして起動
             context.startActivity(advanceNoticeIntent);
 
-            return; // 保存処理をスキップ
+            // **通知をキャンセル**
+            cancelNotification(context, 1); // 通知IDは送信時のものに合わせる
+            return;
         }
 
         // 今日の日付を取得
@@ -80,5 +89,14 @@ public class NotificationReceiver extends BroadcastReceiver {
                         Log.e(TAG, "Firestoreからデータを取得できませんでした");
                     }
                 });
+        // **通知をキャンセル**
+        cancelNotification(context, 1); // 通知IDは送信時のものに合わせる
+    }
+
+    // 通知をキャンセルするメソッド
+    private void cancelNotification(Context context, int notificationId) {
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+        notificationManager.cancel(notificationId);
+        Log.d(TAG, "通知が削除されました: ID=" + notificationId);
     }
 }
