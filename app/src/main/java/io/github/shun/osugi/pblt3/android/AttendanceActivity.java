@@ -119,6 +119,11 @@ public class AttendanceActivity extends AppCompatActivity {
         }
     }
 
+    private void addAttendanceJudge(LinearLayout linearLayout, String subject, String date)
+    {
+
+    }
+
     private TextView createTextView(String text) {
         TextView textView = new TextView(this);
         textView.setText(text);
