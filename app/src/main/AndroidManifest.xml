@@ -21,7 +21,7 @@
 
         <activity
             android:name=".Advance_Notice"
-            android:exported="false" />
+            android:exported="true" />
 
         <activity
             android:name=".SettingsActivity"
