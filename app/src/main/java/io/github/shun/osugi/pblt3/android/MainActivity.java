@@ -168,6 +168,8 @@ public class MainActivity extends AppCompatActivity {
 
     // 通知を作成して送信する
     private void sendNotificationWithDayPeriod(String day, int period, String selectedSubject) {
+        int notificationId = 1; // 通知ID（通知をキャンセルするために使う）
+
         // 出席ボタンのクリック処理
         Intent attendanceIntent = new Intent(this, NotificationReceiver.class);
         attendanceIntent.putExtra("button", "出席");
@@ -263,6 +265,7 @@ public class MainActivity extends AppCompatActivity {
 
     // 通知を送信するメソッドを修正
     private void sendWarningNotification(String title, int notificationId) {
+
         // スピナーから選択された要素を取得
         Spinner subjectSpinner = findViewById(R.id.subjectSpinner);
         String selectedSubject = (String) subjectSpinner.getSelectedItem();
