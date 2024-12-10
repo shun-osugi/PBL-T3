@@ -6,42 +6,110 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Advance_Notice">
+    <include
+        android:id="@+id/headerLayout"
+        layout="@layout/header"
+        android:layout_alignParentTop="true"/>
+
+    <Button
+        android:id="@+id/addButton"
+        android:layout_width="114dp"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#2196F3"
+        android:onClick="onRegisterButtonClick"
+        android:text="登録"
+        android:textColor="#FFFFFF"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="48dp" />
+
+    <Button
+        android:id="@+id/canselButton"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#2196F3"
+        android:onClick="onCancelButtonClick"
+        android:text="キャンセル"
+        android:textColor="#FFFFFF"
+        tools:layout_editor_absoluteX="298dp"
+        tools:layout_editor_absoluteY="48dp" />
+
+    <TextView
+        android:id="@+id/titleTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="96dp"
+        android:text="補講設定"
+        android:textColor="#000"
+        android:textSize="50sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.54"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:layout_marginTop="20dp"
         android:gravity="center"
         android:text="@string/no_date"
-        android:textSize="50sp"
         android:textColor="#000"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:textSize="40sp"
         app:layout_constraintBottom_toTopOf="@id/button1"
-        android:layout_margin="30dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.6"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/titleTextView"
+        app:layout_constraintVertical_bias="0.294" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:text="@string/no_date"
+        android:textColor="#000"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toTopOf="@id/button1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/titleTextView"
+        app:layout_constraintVertical_bias="0.714" />
 
     <Button
         android:id="@+id/button1"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_margin="8dp"
         android:onClick="showDatePickerDialog"
         android:text="日付選択"
-        app:layout_constraintBottom_toTopOf="@id/time_button"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textView" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.628" />
 
     <Button
         android:id="@+id/time_button"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
+        android:layout_margin="8dp"
         android:text="時限選択"
-        app:layout_constraintTop_toBottomOf="@id/button1"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:onClick="showTimePickerDialog"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_margin="16dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.501"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.775" />
+
+    <include
+        android:id="@+id/footerLayout"
+        layout="@layout/footer"
+        android:layout_alignParentBottom="true"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
