@@ -15,23 +15,27 @@
         android:id="@+id/addButton"
         android:layout_width="114dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:layout_marginEnd="164dp"
         android:backgroundTint="#2196F3"
         android:onClick="onRegisterButtonClick"
         android:text="登録"
         android:textColor="#FFFFFF"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="48dp" />
+        app:layout_constraintEnd_toStartOf="@+id/canselButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/canselButton"
         android:layout_width="120dp"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
         android:backgroundTint="#2196F3"
         android:onClick="onCancelButtonClick"
         android:text="キャンセル"
         android:textColor="#FFFFFF"
-        tools:layout_editor_absoluteX="298dp"
-        tools:layout_editor_absoluteY="48dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/addButton" />
 
     <TextView
         android:id="@+id/titleTextView"
