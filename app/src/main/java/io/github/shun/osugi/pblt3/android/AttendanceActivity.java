@@ -63,9 +63,10 @@ public class AttendanceActivity extends AppCompatActivity {
     }
 
     private void loadAttendanceTable(String date, String time) {
-        progressBar.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.VISIBLE); //ロードのぐるぐる
+        /* data曜日のtime時限目を取得 */
         db.collection("timetable").document(userID).collection(date).document(time).get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
+            if (task.isSuccessful()) { //取得に成功
                 DocumentSnapshot snapshot = task.getResult();
                 if (snapshot.exists()) {
                     Map<String, Object> data = snapshot.getData();
@@ -89,40 +90,111 @@ public class AttendanceActivity extends AppCompatActivity {
     private void createTable(String subject, Map<String, Object> data) {
         tableLayout.removeAllViews();
 
-        // テーブルの行数と列数
-        int rows = 3;
-        int columns = 5;
+        // 出席数、欠席数、遅刻数をカウント
+        Map<String, Object> schedule = (Map<String, Object>) data.get("授業日程");
+        int presentCount = 0;
+        int absentCount = 0;
+        int lateCount = 0;
 
-        // 上部のヘッダー行
-        TableRow headerRow = new TableRow(this);
-        for (int i = 1; i <= columns; i++) {
-            TextView headerCell = createTextView(String.valueOf(i));
-            headerCell.setGravity(Gravity.CENTER);
-            headerCell.setBackgroundResource(R.drawable.border0);
-            headerRow.addView(headerCell);
-        }
-        tableLayout.addView(headerRow);
+        if (schedule != null) {
+            for (Map.Entry<String, Object> entry : schedule.entrySet()) {
+                Map<String, Object> session = (Map<String, Object>) entry.getValue();
+                if (session != null) {
+                    boolean isPresent = (Boolean) session.getOrDefault("出欠", false);
+                    boolean isLate = (Boolean) session.getOrDefault("遅刻", false);
 
-        // 出席データの表示
-        for (int i = 0; i < rows; i++) {
-            TableRow tableRow = new TableRow(this);
-            for (int j = 0; j < columns; j++) {
-                int currentCell = i * columns + j + 1; // 現在のマス番号
-                String status = (String) data.getOrDefault(String.valueOf(currentCell), "---");
-
-                TextView cell = new TextView(this);
-                cell.setGravity(Gravity.CENTER);
-                cell.setBackgroundResource(R.drawable.border0);
-                tableRow.addView(cell);
+                    if (isPresent) {
+                        presentCount++;
+                    } else if (isLate) {
+                        lateCount++;
+                    } else {
+                        absentCount++;
+                    }
+                }
             }
-            tableLayout.addView(tableRow);
+        }
+
+        // 科目名と出席数などを表示するヘッダー部分を作成
+        LinearLayout headerLayout = new LinearLayout(this);
+        headerLayout.setOrientation(LinearLayout.VERTICAL);
+        headerLayout.setPadding(16, 16, 16, 16);
+
+        TextView subjectText = createTextView(subject);
+        subjectText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+        subjectText.setGravity(Gravity.CENTER);
+
+        TextView attendanceSummary = createTextView(
+                "出席: " + presentCount + " | 欠席: " + absentCount + " | 遅刻: " + lateCount
+        );
+        attendanceSummary.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+        attendanceSummary.setGravity(Gravity.CENTER);
+
+        headerLayout.addView(subjectText);
+        headerLayout.addView(attendanceSummary);
+
+        // ヘッダー部分をTableLayoutの上に追加
+        tableLayout.addView(headerLayout);
+
+        int rows = 3; // 行数を定義
+        int columns = 5; // 列数を定義
+
+        // 上部のヘッダー行を作成
+        TableRow headerRow = new TableRow(this);
+
+        if (schedule != null) {
+            for (int i = 0; i < rows; i++) {
+                TableRow tableRow = new TableRow(this);
+                for (int j = 0; j < columns; j++) {
+                    int currentCell = i * columns + j + 1; // 現在のマス番号
+
+                    LinearLayout cellLayout = new LinearLayout(this);
+                    cellLayout.setOrientation(LinearLayout.VERTICAL);
+                    cellLayout.setGravity(Gravity.CENTER);
+
+                    // セルのサイズを動的に設定
+                    int cellSize = 150; // 任意の正方形サイズ
+                    TableRow.LayoutParams cellParams = new TableRow.LayoutParams(cellSize, cellSize);
+                    cellLayout.setLayoutParams(cellParams);
+
+                    TextView numberText = createTextView(String.valueOf(currentCell));
+                    numberText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+                    numberText.setGravity(Gravity.CENTER);
+
+                    Map<String, Object> session = (Map<String, Object>) schedule.get("第" + currentCell + "授業日");
+                    String displayText = "---";
+                    if (session != null) {
+                        boolean isPresent = (Boolean) session.getOrDefault("出欠", false);
+                        boolean isLate = (Boolean) session.getOrDefault("遅刻", false);
+
+                        if (isPresent) {
+                            displayText = "出";
+                        } else if (isLate) {
+                            displayText = "遅";
+                        } else {
+                            displayText = "欠";
+                        }
+                    }
+
+                    TextView cellText = createTextView(displayText);
+                    cellText.setGravity(Gravity.CENTER);
+                    cellText.setBackgroundResource(R.drawable.border0);
+
+                    cellLayout.addView(numberText);
+                    cellLayout.addView(cellText);
+
+                    tableRow.addView(cellLayout);
+                }
+                tableLayout.addView(tableRow);
+            }
+
+        }
+        else {
+            showError("授業日程のデータがありません。");
         }
     }
 
-    private void addAttendanceJudge(LinearLayout linearLayout, String subject, String date)
-    {
 
-    }
+
 
     private TextView createTextView(String text) {
         TextView textView = new TextView(this);
