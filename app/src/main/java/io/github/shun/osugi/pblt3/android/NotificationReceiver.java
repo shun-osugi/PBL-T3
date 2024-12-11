@@ -57,9 +57,10 @@ public class NotificationReceiver extends BroadcastReceiver {
                     if (task.isSuccessful() && task.getResult().exists()) {
                         Map<String, Object> scheduleMap = (Map<String, Object>) task.getResult().get("授業日程");
 
-                        // 現在の最大 "第n授業日" を計算
                         int maxLessonNumber = 0;
-                        if (scheduleMap != null) {
+
+                        // 現在の最大 "第n授業日" を計算
+                        if (scheduleMap != null && !scheduleMap.isEmpty()) {
                             for (String key : scheduleMap.keySet()) {
                                 if (key.startsWith("第")) {
                                     try {
@@ -72,7 +73,7 @@ public class NotificationReceiver extends BroadcastReceiver {
                             }
                         }
 
-                        // 新しい授業データを作成
+                        // データがない場合は maxLessonNumber は0のまま → 第1授業日を作成
                         String newLessonKey = "第" + (maxLessonNumber + 1) + "授業日";
                         Map<String, Object> newLessonData = Map.of(
                                 "授業日", todayDate,
@@ -84,11 +85,22 @@ public class NotificationReceiver extends BroadcastReceiver {
                         db.collection("timetable").document(userID).collection(day).document(String.valueOf(period))
                                 .update("授業日程." + newLessonKey, newLessonData)
                                 .addOnSuccessListener(aVoid -> Log.i(TAG, "新しい授業データが保存されました: " + newLessonKey))
-                                .addOnFailureListener(e -> Log.e(TAG, "授業データの保存に失敗しました", e));
+                                .addOnFailureListener(e -> {
+                                    // ドキュメントが存在しない場合は set() を使用して新しく作成
+                                    Map<String, Object> initialData = Map.of(
+                                            "授業日程", Map.of(newLessonKey, newLessonData) // 初期データとして授業日程を作成
+                                    );
+
+                                    db.collection("timetable").document(userID).collection(day).document(String.valueOf(period))
+                                            .set(initialData)
+                                            .addOnSuccessListener(aVoid2 -> Log.i(TAG, "ドキュメントが新規作成されました: " + newLessonKey))
+                                            .addOnFailureListener(e2 -> Log.e(TAG, "新規データの保存に失敗しました", e2));
+                                });
                     } else {
                         Log.e(TAG, "Firestoreからデータを取得できませんでした");
                     }
                 });
+
         // **通知をキャンセル**
         cancelNotification(context, 1); // 通知IDは送信時のものに合わせる
     }
