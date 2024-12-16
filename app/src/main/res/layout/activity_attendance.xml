@@ -6,40 +6,34 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".AttendanceActivity">
+
     <include
         android:id="@+id/headerLayout"
         layout="@layout/header"
         android:layout_alignParentTop="true"/>
-    <!--ーーーーーこれより下に書くーーーーー-->
 
-    <ProgressBar
-        android:id="@+id/progress_bar"
+    <!-- ここから下に書く -->
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="center"/>
+        android:layout_marginHorizontal="30dp"
+        android:layout_marginBottom="65dp"
+        android:layout_marginTop="60dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <TableLayout
-        android:id="@+id/table_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="32dp"
-        android:padding="16dp"
-        android:stretchColumns="*"
-        app:layout_constraintBottom_toTopOf="@+id/footerLayout"
-        app:layout_constraintTop_toBottomOf="@+id/headerLayout"
-        app:layout_constraintVertical_bias="0.0"
-        tools:layout_editor_absoluteX="36dp" />
+        <LinearLayout
+            android:id="@+id/parentLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="16dp">
+            <!-- 曜日ごとのレイアウトがここに動的に追加される -->
+        </LinearLayout>
 
-    <TextView
-        android:id="@+id/error_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/red"
-        android:visibility="gone"
-        android:layout_gravity="center"/>
+    </ScrollView>
 
-    <!--ーーーーーこれより上に書くーーーーー-->
     <include
         android:id="@+id/footerLayout"
         layout="@layout/footer"
