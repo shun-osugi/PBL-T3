@@ -1,5 +1,7 @@
 package io.github.shun.osugi.pblt3.android;
 
+import static java.security.AccessController.getContext;
+
 import android.content.res.ColorStateList;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -13,20 +15,27 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.view.Gravity;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.SetOptions;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -185,13 +194,12 @@ public class AttendanceActivity extends AppCompatActivity {
                     Boolean isPresent = (Boolean) session.get("出欠");
                     Boolean isLate = (Boolean) session.get("遅刻");
 
-                    // 出欠がnullの場合も考慮して判定
                     if (isPresent != null && isPresent) {
                         presentCount++;
                     } else if (isLate != null && isLate) {
                         lateCount++;
                     } else {
-                        absentCount++; // 出欠や遅刻が未登録またはfalseの場合
+                        absentCount++;
                     }
                 }
             }
@@ -235,7 +243,10 @@ public class AttendanceActivity extends AppCompatActivity {
                     numberText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
                     numberText.setGravity(Gravity.CENTER);
 
+                    // 現在の曜日情報を取得し、currentCellを曜日に関連付ける
+                    String dayOfWeek = daysOfWeek[i]; // iを使用して曜日を取得
                     Map<String, Object> session = (Map<String, Object>) schedule.get("第" + currentCell + "授業日");
+
                     String displayText = "---";
                     if (session != null) {
                         Boolean isPresent = (Boolean) session.get("出欠");
@@ -253,6 +264,9 @@ public class AttendanceActivity extends AppCompatActivity {
                     cellText.setGravity(Gravity.CENTER);
                     cellText.setBackgroundResource(R.drawable.border0);
 
+                    // セルをタップしたときに出欠編集ダイアログを表示する
+                    cellLayout.setOnClickListener(v -> showAttendanceEditDialog(subject, dayOfWeek, currentCell, session, data));
+
                     cellLayout.addView(numberText);
                     cellLayout.addView(cellText);
                     tableRow.addView(cellLayout);
@@ -266,8 +280,67 @@ public class AttendanceActivity extends AppCompatActivity {
         // 「元の時間割に戻る」ボタンを追加
         Button backButton = new Button(this);
         backButton.setText("戻る");
-        backButton.setOnClickListener(v -> loadTimetable());  // loadTimetable() を呼び出して元の時間割に戻る
+        backButton.setOnClickListener(v -> loadTimetable());
         tableLayout.addView(backButton);
+    }
+
+
+    private void showAttendanceEditDialog(String subject, String dayOfWeek, int sessionNumber, Map<String, Object> session, Map<String, Object> date) {
+        // ダイアログのビューを作成
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_attendance_edit, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(dialogView);
+
+        // 出席、遅刻、欠席のラジオボタンを取得
+        RadioButton presentRadio = dialogView.findViewById(R.id.radioPresent);
+        RadioButton lateRadio = dialogView.findViewById(R.id.radioLate);
+        RadioButton absentRadio = dialogView.findViewById(R.id.radioAbsent);
+
+        // 現在の状態に基づいてラジオボタンを設定
+        if (session != null) {
+            Boolean isPresent = (Boolean) session.get("出欠");
+            Boolean isLate = (Boolean) session.get("遅刻");
+
+            if (isPresent != null && isPresent) {
+                presentRadio.setChecked(true);
+            } else if (isLate != null && isLate) {
+                lateRadio.setChecked(true);
+            } else {
+                absentRadio.setChecked(true);
+            }
+        }
+
+        // 保存ボタンのクリックイベント
+        builder.setPositiveButton("保存", (dialog, which) -> {
+            // 出欠情報を更新
+            Map<String, Object> updatedSession = new HashMap<>();
+            updatedSession.put("出欠", presentRadio.isChecked());
+            updatedSession.put("遅刻", lateRadio.isChecked());
+            updatedSession.put("欠席", absentRadio.isChecked()); // 欠席の状態も更新
+
+            // 授業日程の情報をFirestoreに更新
+            db.collection("timetable")
+                    .document(userID)
+                    .collection(dayOfWeek)  // 曜日 (日付)
+                    .document(String.valueOf(sessionNumber))  // 時限
+                    .update("授業日程." + "第" + sessionNumber + "授業日", updatedSession)
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(this, "出席情報が保存されました。", Toast.LENGTH_SHORT).show();
+                        // 更新後の画面をリロード
+                        loadAttendanceTable(dayOfWeek, String.valueOf(sessionNumber));
+                    })
+                    .addOnFailureListener(e -> {
+                        showError("出席情報の更新に失敗しました。");
+                    });
+        });
+
+        // キャンセルボタンの設定
+        builder.setNegativeButton("キャンセル", (dialog, which) -> {
+            dialog.dismiss();
+        });
+
+        // ダイアログを表示
+        builder.create().show();
     }
 
 
