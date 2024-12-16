@@ -55,13 +55,42 @@ public class Advance_Notice extends AppCompatActivity implements DatePickerDialo
 
         // 「登録」ボタンをクリック時に Firestore へデータ保存
         binding.addButton.setOnClickListener(this::registerSupplementaryClass);
+
+        // 「時限を選択」ボタンのクリックリスナー
+        binding.timeButton.setOnClickListener(this::showPeriodSelectionDialog);
+
+        // 「日付を選択」ボタンのクリックリスナー
+        binding.button1.setOnClickListener(this::showDatePickerDialog);
     }
 
     @Override
     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
         // 日付を表示する
-        String dateString = String.format(Locale.US, "%d/%d/%d", year, monthOfYear + 1, dayOfMonth);
-        binding.textView.setText(dateString);
+        selectedDate = String.format(Locale.US, "%d/%d/%d", year, monthOfYear + 1, dayOfMonth);
+        binding.textView.setText(selectedDate);
+    }
+
+    // 時限選択ダイアログの表示
+    public void showPeriodSelectionDialog(View v) {
+        new AlertDialog.Builder(this)
+                .setTitle("時限を選択")
+                .setMultiChoiceItems(classArray, selectedClasses, (dialog, which, isChecked) -> {
+                    // 選択状態を保存
+                    selectedClasses[which] = isChecked;
+
+                    // 選択された時限リストを更新
+                    if (isChecked) {
+                        selectedClassList.add(classArray[which]);
+                    } else {
+                        selectedClassList.remove(classArray[which]);
+                    }
+                })
+                .setPositiveButton("OK", (dialog, which) -> {
+                    // 選択された時限をテキストビューに表示
+                    binding.textView2.setText(String.join(", ", selectedClassList));
+                })
+                .setNegativeButton("キャンセル", null)
+                .show();
     }
 
     // DatePickerダイアログを表示するメソッド
@@ -74,57 +103,87 @@ public class Advance_Notice extends AppCompatActivity implements DatePickerDialo
     public void registerSupplementaryClass(View v) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        // Firestore パス構造の各要素
-        String userId = "yourUserId"; // TODO: ユーザーIDは Firebase Authentication などで取得
-        String selectedDate = binding.textView.getText().toString(); // 選択された日付
-        String selectedPeriodText = binding.textView2.getText().toString(); // 選択された時限（テキスト）
-
-        // 入力データチェック
-        if (selectedDate.isEmpty() || selectedPeriodText.isEmpty()) {
+        // 入力チェック
+        if (selectedDate.isEmpty() || selectedClassList.isEmpty()) {
             Toast.makeText(this, "日付と時限を選択してください", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        String dayOfWeek = "yourDayOfWeek"; // TODO: 曜日データを適切に設定（現在固定値）
+        // 登録確認ダイアログの表示
+        showConfirmationDialog();
 
-        // 選択された時限をループ処理
-        String[] selectedPeriods = selectedPeriodText.split(" ");
-        for (String period : selectedPeriods) {
-            // Firestore ドキュメントパス: timetable/{userId}/{曜日}/{時限}
-            String documentPath = String.format("timetable/%s/%s/%s", userId, dayOfWeek, period);
-
-            // Firestore に保存するデータ
-            Map<String, Object> supplementaryClass = new HashMap<>();
-            supplementaryClass.put("授業日", selectedDate);
-            supplementaryClass.put("出欠（1~3）", false);
-            supplementaryClass.put("遅刻", false);
-
-            Map<String, Object> lectureSchedule = new HashMap<>();
-            lectureSchedule.put("第16回", supplementaryClass);
-
-            // Firestore に保存処理
-            db.document(documentPath)
-                    .set(lectureSchedule, SetOptions.merge())
-                    .addOnSuccessListener(aVoid -> {
-                        // 成功時の処理
-                        showConfirmationDialog(selectedDate, period);
-                        navigateToTimetableActivity();
-                    })
-                    .addOnFailureListener(e -> {
-                        // エラー処理
-                        Toast.makeText(this, "登録に失敗しました: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    });
-        }
+//        // Firestore に保存
+//        for (String period : selectedClassList) {
+//            String documentPath = String.format("timetable/yourUserId/%s/%s", selectedDate, period); // TODO: UserIdを適切に設定
+//            Map<String, Object> data = new HashMap<>();
+//            data.put("補講情報", true); // 必要に応じて拡張
+//
+//            db.document(documentPath)
+//                    .set(data, SetOptions.merge())
+//                    .addOnSuccessListener(aVoid -> {
+//                        Toast.makeText(this, "登録成功: " + period, Toast.LENGTH_SHORT).show();
+//                    })
+//                    .addOnFailureListener(e -> {
+//                        Toast.makeText(this, "登録失敗: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+//                    });
+//        }
+//
+//        // 登録後に次の画面へ遷移
+//        navigateToTimetableActivity();
     }
 
     // ダイアログの表示
-    private void showConfirmationDialog(String date, String period) {
+//    private void showConfirmationDialog(String date, String period) {
+//        new AlertDialog.Builder(this)
+//                .setTitle("登録完了")
+//                .setMessage(date + " " + period + " に補講情報を登録しました")
+//                .setPositiveButton("OK", null)
+//                .show();
+//    }
+
+    // 確認ダイアログを表示
+    private void showConfirmationDialog() {
+        // 選択された時限を文字列に整形
+        String selectedPeriods = String.join(", ", selectedClassList);
+
+        // 確認メッセージ
+        String message = String.format(Locale.US, "%s   %s に登録します。よろしいですか？", selectedDate, selectedPeriods);
+
+        // ダイアログ表示
         new AlertDialog.Builder(this)
-                .setTitle("登録完了")
-                .setMessage(date + " " + period + " に補講情報を登録しました")
-                .setPositiveButton("OK", null)
+                .setTitle("登録確認")
+                .setMessage(message)
+                .setPositiveButton("はい", (dialog, which) -> {
+                    // 「はい」が押された場合にデータをFirestoreに登録
+                    saveToFirestore();
+                })
+                .setNegativeButton("いいえ", null) // 何もしない
                 .show();
     }
+
+    // Firestoreにデータを保存
+    private void saveToFirestore() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        for (String period : selectedClassList) {
+            String documentPath = String.format("timetable/yourUserId/%s/%s", selectedDate, period); // TODO: UserIdを適切に設定
+            Map<String, Object> data = new HashMap<>();
+            data.put("補講情報", true); // 必要に応じて拡張
+
+            db.document(documentPath)
+                    .set(data, SetOptions.merge())
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(this, "登録成功: " + period, Toast.LENGTH_SHORT).show();
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "登録失敗: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
+        }
+
+        // 登録完了後に次の画面に遷移
+        navigateToTimetableActivity();
+    }
+
 
     // TimetableActivity への遷移
     private void navigateToTimetableActivity() {
