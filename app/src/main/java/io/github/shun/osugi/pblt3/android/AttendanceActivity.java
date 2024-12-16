@@ -9,6 +9,7 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -21,17 +22,22 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+
 
 public class AttendanceActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private String userID;
     final String[] daysOfWeek = {"月", "火", "水", "木", "金", "土", "日"};
     private LinearLayout parentLayout;
+    private ProgressBar progressBar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +56,9 @@ public class AttendanceActivity extends AppCompatActivity {
         // フッターのクリックイベントを設定
         FooterUtils.setupFooter(this);
 
+        progressBar = findViewById(R.id.progress_bar); // ProgressBarの参照を取得
+
+
         // 親レイアウトの取得
         parentLayout = findViewById(R.id.parentLayout); // ここに適切なIDが設定されていることを確認してください。
 
@@ -58,16 +67,82 @@ public class AttendanceActivity extends AppCompatActivity {
     }
 
     private void loadAttendanceData() {
+        // まず、月曜日のデータをロードする
+        db.collection("timetable").document(userID).collection("月").get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                        List<DocumentSnapshot> periods = task.getResult().getDocuments();
+                        periods.sort((doc1, doc2) -> {
+                            int period1 = Integer.parseInt(doc1.getId().replaceAll("\\D", ""));
+                            int period2 = Integer.parseInt(doc2.getId().replaceAll("\\D", ""));
+                            return Integer.compare(period1, period2);
+                        });
+                        // 月曜日のデータを表示
+                        addDayLayout("月", periods);
+                    }
+
+                    // 月曜日のデータがロードされたら、次に他の曜日を順番通りにロード
+                    List<String> completedDays = new ArrayList<>();
+                    completedDays.add("月"); // 月曜日が最初なので先に追加
+
+                    // 火曜日から日曜日までの曜日データを順番に処理
+                    for (int i = 1; i < daysOfWeek.length; i++) {
+                        String day = daysOfWeek[i];
+                        db.collection("timetable").document(userID).collection(day).get()
+                                .addOnCompleteListener(task2 -> {
+                                    if (task2.isSuccessful() && !task2.getResult().isEmpty()) {
+                                        List<DocumentSnapshot> periods = task2.getResult().getDocuments();
+                                        periods.sort((doc1, doc2) -> {
+                                            int period1 = Integer.parseInt(doc1.getId().replaceAll("\\D", ""));
+                                            int period2 = Integer.parseInt(doc2.getId().replaceAll("\\D", ""));
+                                            return Integer.compare(period1, period2);
+                                        });
+                                        // 各曜日のデータを表示
+                                        addDayLayout(day, periods);
+                                    }
+                                    // 完了した曜日のデータがあればcompletedDaysに追加
+                                    completedDays.add(day);
+
+                                    // すべての曜日のデータがロードされたら、表示順序を更新
+                                    if (completedDays.size() == daysOfWeek.length) {
+                                        sortAndDisplayDays(completedDays);
+                                        progressBar.setVisibility(View.GONE); // プログレスバーを非表示
+                                    }
+                                });
+                    }
+                });
+    }
+
+    private void sortAndDisplayDays(List<String> completedDays) {
+        // 完了した曜日を月曜日から順番に並べ替えて、親レイアウトに追加
+        List<String> orderedDays = new ArrayList<>();
         for (String day : daysOfWeek) {
-            db.collection("timetable").document(userID).collection(day).get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                            // QuerySnapshotをDocumentSnapshotのリストとして取得
-                            addDayLayout(day, task.getResult().getDocuments());
-                        }
-                    });
+            if (completedDays.contains(day)) {
+                orderedDays.add(day); // 曜日を正しい順番で追加
+            }
+        }
+
+        // 正しい順番で親レイアウトに追加
+        for (String day : orderedDays) {
+            for (int i = 0; i < parentLayout.getChildCount(); i++) {
+                LinearLayout dayLayout = (LinearLayout) parentLayout.getChildAt(i);
+                TextView dayTitle = (TextView) dayLayout.getChildAt(0); // 曜日タイトルのTextView
+                if (dayTitle.getText().toString().contains(day)) {
+                    parentLayout.removeView(dayLayout);
+                    parentLayout.addView(dayLayout);
+                    break;
+                }
+            }
         }
     }
+
+
+    private boolean isAllDataLoaded() {
+        // すべての曜日のデータが読み込まれたかどうかを判定するロジックを追加
+        // 例えば、各曜日が処理されたかどうかのフラグを立てて判定する
+        return true;
+    }
+
 
     private void addDayLayout(String day, List<DocumentSnapshot> periods) {
         // 曜日とコマを表示するコンテナ
@@ -200,13 +275,13 @@ public class AttendanceActivity extends AppCompatActivity {
                         status.setBackgroundColor(backgroundColor);
                         status.setTextColor(Color.WHITE);
 
-// クリックイベントを追加して出欠を変更
+                        // クリックイベントを追加して出欠を変更
                         final String currentDay = day; // 曜日
                         final String currentPeriod = period; // コマ数
                         final Map<String, Object> currentScheduleMap = scheduleMap; // 授業スケジュール
                         final int currentLessonNumber = lessonNumber; // 授業番号
 
-                        status.setOnClickListener(v -> toggleAttendanceStatus(status, currentLessonNumber, currentPeriod, currentDay,periodDoc, currentScheduleMap));
+                        status.setOnClickListener(v -> toggleAttendanceStatus(status, currentLessonNumber, currentPeriod, currentDay, periodDoc, currentScheduleMap));
                         cellLayout.addView(title);
                         cellLayout.addView(status);
                         tableRow.addView(cellLayout);
@@ -214,13 +289,11 @@ public class AttendanceActivity extends AppCompatActivity {
                 }
                 tableLayout.addView(tableRow);
             }
-
             // 曜日コンテナに授業名、出席情報、表を追加
             dayLayout.addView(classTitle);
             dayLayout.addView(attendanceSummary); // 出席、遅刻、欠席のカウントを追加
             dayLayout.addView(tableLayout);
         }
-
         // 親レイアウトに曜日コンテナを追加
         parentLayout.addView(dayLayout);
     }
@@ -333,12 +406,10 @@ public class AttendanceActivity extends AppCompatActivity {
                                     }
                                 });
                     }
-
                 })
                 .setCancelable(true)
                 .show();
     }
-
     // すべての出席情報を再描画するメソッド
     private void updateAllAttendanceViews() {
         parentLayout.removeAllViews();  // 親レイアウトを一度クリアしてから再描画
@@ -346,6 +417,4 @@ public class AttendanceActivity extends AppCompatActivity {
         // 再度、全曜日とコマを探索して表示
         loadAttendanceData();  // 出席情報を再度ロードしてUIに反映
     }
-
-
 }

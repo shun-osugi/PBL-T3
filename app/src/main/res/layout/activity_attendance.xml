@@ -13,6 +13,12 @@
         android:layout_alignParentTop="true"/>
 
     <!-- ここから下に書く -->
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"/>
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
