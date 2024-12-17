@@ -7,6 +7,7 @@ import android.app.DatePickerDialog;
 import android.content.res.ColorStateList;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -461,6 +462,81 @@ public class TimetableActivity extends AppCompatActivity {
 
                         // みんなの登録ダイアログを表示
                         registeredClassesButton.setText("みんなの登録");
+                        registeredClassesButton.setOnClickListener(registeredClassDialog -> {
+                            // カスタムレイアウトのビューを読み込む
+                            LayoutInflater inflater2 = LayoutInflater.from(this);
+                            View dialogView2 = inflater2.inflate(R.layout.registered_class_dialog, null);
+
+                            // ダイアログを作成
+                            AlertDialog dialog2 = new AlertDialog.Builder(this)
+                                    .setView(dialogView2)
+                                    .setCancelable(true)
+                                    .create();
+
+                            LinearLayout classContainer = dialogView2.findViewById(R.id.registeredClassContainer);
+                            db.collection("class").get().addOnCompleteListener(task2 -> {
+                                if (task2.isSuccessful() && task2.getResult() != null) {
+                                    Log.d("qwe", "task2.getResult(): " + task2.getResult().toString());
+                                    Log.d("qwe", "success1");
+                                    for (DocumentSnapshot classDoc : task2.getResult()) {
+                                        String classId = classDoc.getId();
+                                        Log.d("qwe", classId);
+                                        db.collection("class").document(classId).collection(day).document(String.valueOf(period))
+                                                .get()
+                                                .addOnCompleteListener(task3 -> {
+                                                    if (task3.isSuccessful() && task3.getResult() != null) {
+                                                        Log.d("qwe", "success2");
+                                                        DocumentSnapshot snapshot2 = task3.getResult();
+                                                        if (snapshot2.exists()) {
+                                                            Map<String, Object> data = snapshot2.getData();
+
+                                                            // データ取得
+                                                            String subjectName = data.containsKey("教科名") ? (String) data.get("教科名") : "未設定";
+                                                            String classroomName = data.containsKey("教室名") ? (String) data.get("教室名") : "未設定";
+                                                            String attendanceMethod1 = data.containsKey("出席方法1") ? (String) data.get("出席方法1") : "未設定";
+                                                            String attendanceMethod2 = data.containsKey("出席方法2") ? (String) data.get("出席方法2") : "未設定";
+                                                            String attendanceMethod3 = data.containsKey("出席方法3") ? (String) data.get("出席方法3") : "未設定";
+                                                            int notificationTime1 = data.containsKey("通知時間1") ? ((Long) data.get("通知時間1")).intValue() : -10;
+                                                            int notificationTime2 = data.containsKey("通知時間2") ? ((Long) data.get("通知時間2")).intValue() : -10;
+                                                            int notificationTime3 = data.containsKey("通知時間3") ? ((Long) data.get("通知時間3")).intValue() : -10;
+                                                            int lateTime = data.containsKey("遅刻時間") ? ((Long) data.get("遅刻時間")).intValue() : 20;
+                                                            boolean danger = data.containsKey("危険") ? (Boolean) data.get("危険") : false;
+                                                            Map<String, Object> scheduleMap = data.containsKey("授業日程") ? (Map<String, Object>) data.get("授業日程") : new HashMap<>();
+
+                                                            Log.d("qwe", "Subject: " + subjectName);
+
+                                                            // UIスレッドでボタンを追加
+                                                            runOnUiThread(() -> {
+                                                                Button registeredClassButton = new Button(classContainer.getContext());
+                                                                registeredClassButton.setText(subjectName);
+                                                                registeredClassButton.setLayoutParams(new LinearLayout.LayoutParams(
+                                                                        ViewGroup.LayoutParams.MATCH_PARENT,
+                                                                        ViewGroup.LayoutParams.WRAP_CONTENT
+                                                                ));
+                                                                registeredClassButton.setOnClickListener(register -> {
+                                                                    saveClassDetails(db, userID, day, period, subjectName, classroomName,
+                                                                            attendanceMethod1, attendanceMethod2, attendanceMethod3,
+                                                                            notificationTime1, notificationTime2, notificationTime3, lateTime);
+                                                                    dialog2.dismiss();
+                                                                    loadTimetable();
+                                                                });
+                                                                classContainer.addView(registeredClassButton);
+                                                            });
+                                                        } else {
+                                                            Log.d("FirestoreData", "No document found for period: " + period);
+                                                        }
+                                                    } else {
+                                                        Log.e("FirestoreError", "Failed to fetch document: ", task3.getException());
+                                                    }
+                                                });
+                                    }
+                                } else {
+                                    Log.e("FirestoreError", "Failed to fetch class collection: ", task2.getException());
+                                }
+                            });
+
+                            dialog2.show();
+                        });
 
                         // 詳細設定を非表示
                         detailButton.setVisibility(View.GONE);
@@ -532,6 +608,7 @@ public class TimetableActivity extends AppCompatActivity {
 
                             // classコレクションに保存
                             String classDocumentId = db.collection("class").document().getId();
+                            //String classDocumentId = "registered";
                             Map<String, Object> classData = new HashMap<>();
                             classData.put("教科名", newSubjectName);
                             classData.put("教室名", newClassroomName);
@@ -631,5 +708,30 @@ public class TimetableActivity extends AppCompatActivity {
         } catch (NumberFormatException e) {
             return null;
         }
+    }
+
+    private void saveClassDetails(FirebaseFirestore db, String userID, String day, int period,
+                                  String subjectName, String classroomName, String method1, String method2, String method3,
+                                  int notifyTime1, int notifyTime2, int notifyTime3, int lateTime) {
+        Map<String, Object> classData = new HashMap<>();
+        classData.put("教科名", subjectName);
+        classData.put("教室名", classroomName);
+        classData.put("出席方法1", method1.isEmpty() ? null : method1);
+        classData.put("出席方法2", method2.isEmpty() ? null : method2);
+        classData.put("出席方法3", method3.isEmpty() ? null : method3);
+        classData.put("通知時間1", notifyTime1);
+        classData.put("通知時間2", notifyTime2);
+        classData.put("通知時間3", notifyTime3);
+        classData.put("遅刻時間", lateTime);
+
+        db.collection("class").document().collection(day).document(String.valueOf(period))
+                .set(classData, SetOptions.merge())
+                .addOnSuccessListener(aVoid -> Log.d("FirestoreSave", "Class details saved"))
+                .addOnFailureListener(e -> Log.e("FirestoreSave", "Failed to save class details: " + e.getMessage()));
+
+        db.collection("timetable").document(userID).collection(day).document(String.valueOf(period))
+                .set(classData, SetOptions.merge())
+                .addOnSuccessListener(aVoid -> Log.d("FirestoreSave", "Timetable details saved"))
+                .addOnFailureListener(e -> Log.e("FirestoreSave", "Failed to save timetable details: " + e.getMessage()));
     }
 }
