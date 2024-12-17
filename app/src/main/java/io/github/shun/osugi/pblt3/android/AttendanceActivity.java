@@ -156,6 +156,8 @@ public class AttendanceActivity extends AppCompatActivity {
         dayTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
         dayTitle.setGravity(Gravity.CENTER);
         dayTitle.setTextColor(Color.BLACK);
+        dayTitle.setBackgroundColor(Color.parseColor("#DDDDDD")); // 薄いグレーを設定
+
 
         // コンテナに曜日名を追加
         dayLayout.addView(dayTitle);
@@ -175,12 +177,23 @@ public class AttendanceActivity extends AppCompatActivity {
             TextView periodTitle = new TextView(this);
             periodTitle.setText(period + "限");
             periodTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-            periodTitle.setGravity(Gravity.START);
-            periodTitle.setPadding(16, 8, 0, 8);
+            periodTitle.setGravity(Gravity.CENTER_VERTICAL); // 垂直中央に文字を配置
+            periodTitle.setPadding(8, 4, 8, 4); // 文字の周りに少し余白を設定
             periodTitle.setTextColor(Color.DKGRAY);
+            periodTitle.setBackgroundColor(Color.parseColor("#DDDDDD")); // 文字の背景色を薄いグレーに
 
-            // コンテナに「n限」を追加
+// マージンを追加（上方向に余白を開ける）
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT, // 幅は文字幅に合わせる
+                    LinearLayout.LayoutParams.WRAP_CONTENT  // 高さは文字高さに合わせる
+            );
+            params.setMargins(0, 16, 0, 0); // 上に16pxのマージン
+            periodTitle.setLayoutParams(params);
+
+// コンテナに「n限」を追加
             dayLayout.addView(periodTitle);
+
+
 
             // 授業名を表示
             TextView classTitle = new TextView(this);
@@ -218,6 +231,16 @@ public class AttendanceActivity extends AppCompatActivity {
             attendanceSummary.setGravity(Gravity.START);
             attendanceSummary.setPadding(16, 8, 0, 8);
             attendanceSummary.setTextColor(Color.DKGRAY);
+
+            // 欠席が4以上の場合、授業名の背景色を赤色にし、テキスト色を白に変更
+            if (absentCount >= 4) {
+                classTitle.setBackgroundColor(Color.RED);
+                classTitle.setTextColor(Color.WHITE);
+            } else {
+                classTitle.setBackgroundColor(Color.TRANSPARENT); // デフォルト色
+                classTitle.setTextColor(Color.DKGRAY); // デフォルトのテキスト色
+            }
+
 
             // 表の作成
             TableLayout tableLayout = new TableLayout(this);
