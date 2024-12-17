@@ -77,8 +77,6 @@ public class AttendanceActivity extends AppCompatActivity {
                             int period2 = Integer.parseInt(doc2.getId().replaceAll("\\D", ""));
                             return Integer.compare(period1, period2);
                         });
-                        // 月曜日のデータを表示
-                        addDayLayout("月", periods);
                     }
 
                     // 月曜日のデータがロードされたら、次に他の曜日を順番通りにロード
@@ -86,7 +84,7 @@ public class AttendanceActivity extends AppCompatActivity {
                     completedDays.add("月"); // 月曜日が最初なので先に追加
 
                     // 火曜日から日曜日までの曜日データを順番に処理
-                    for (int i = 1; i < daysOfWeek.length; i++) {
+                    for (int i = 0; i < daysOfWeek.length; i++) {
                         String day = daysOfWeek[i];
                         db.collection("timetable").document(userID).collection(day).get()
                                 .addOnCompleteListener(task2 -> {
