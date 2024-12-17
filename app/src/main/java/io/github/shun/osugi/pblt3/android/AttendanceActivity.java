@@ -205,7 +205,7 @@ public class AttendanceActivity extends AppCompatActivity {
                     if (late != null && late) {
                         lateCount++;
                     }
-                    if (attendance != null && !attendance) {
+                    else if (attendance != null && !attendance) {
                         absentCount++;
                     }
                 }
