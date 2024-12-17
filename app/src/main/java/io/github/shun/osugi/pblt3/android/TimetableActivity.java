@@ -320,7 +320,7 @@ public class TimetableActivity extends AppCompatActivity {
                         saveButton.setOnClickListener(v -> {
                             String newSubjectName = subjectNameEdit.getText().toString().trim();
                             String newStartDate = startDate.getText().toString().trim();
-                            Map<String, Map<String, String>> startDateMap = mapDates(newStartDate);
+                            //Map<String, Map<String, String>> startDateMap = mapDates(newStartDate);
 
                             // 出席方法1、2、3のチェック
                             String newAttendanceMethod1 = attendanceMethodEdit1.getText().toString().trim();
@@ -358,7 +358,7 @@ public class TimetableActivity extends AppCompatActivity {
                             // timetableコレクションに保存
                             Map<String, Object> timetableData = new HashMap<>();
                             timetableData.put("教科名", newSubjectName);
-                            timetableData.put("授業日程", startDateMap);
+                            timetableData.put("授業日程", new HashMap<>());
                             timetableData.put("出席方法1", newAttendanceMethod1.isEmpty() ? null : newAttendanceMethod1);
                             timetableData.put("出席方法2", newAttendanceMethod2.isEmpty() ? null : newAttendanceMethod2);
                             timetableData.put("出席方法3", newAttendanceMethod3.isEmpty() ? null : newAttendanceMethod3);
@@ -507,7 +507,7 @@ public class TimetableActivity extends AppCompatActivity {
                         saveButton.setOnClickListener(v -> {
                             String newSubjectName = subjectNameEdit.getText().toString().trim();
                             String newStartDate = startDate.getText().toString().trim();
-                            Map<String, Map<String, String>> startDateMap = mapDates(newStartDate);
+                            //Map<String, Map<String, String>> startDateMap = mapDates(newStartDate);
 
                             // 出席方法1、2、3のチェック
                             String newAttendanceMethod1 = attendanceMethodEdit1.getText().toString().trim();
@@ -545,7 +545,7 @@ public class TimetableActivity extends AppCompatActivity {
                             // timetableコレクションに保存
                             Map<String, Object> timetableData = new HashMap<>();
                             timetableData.put("教科名", newSubjectName);
-                            timetableData.put("授業日程", startDateMap);
+                            timetableData.put("授業日程", new HashMap<>());
                             timetableData.put("出席方法1", newAttendanceMethod1.isEmpty() ? null : newAttendanceMethod1);
                             timetableData.put("出席方法2", newAttendanceMethod2.isEmpty() ? null : newAttendanceMethod2);
                             timetableData.put("出席方法3", newAttendanceMethod3.isEmpty() ? null : newAttendanceMethod3);
@@ -593,7 +593,7 @@ public class TimetableActivity extends AppCompatActivity {
         errorText.setVisibility(View.VISIBLE);
     }
 
-    private Map<String, Map<String, String>> mapDates(String startDate) {
+    /*private Map<String, Map<String, String>> mapDates(String startDate) {
         Map<String, Map<String, String>> dateMap = new HashMap<>();
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
@@ -613,7 +613,7 @@ public class TimetableActivity extends AppCompatActivity {
         }
 
         return dateMap;
-    }
+    }*/
 
     private Integer parseIntegerOrNull(String input) {
         try {
