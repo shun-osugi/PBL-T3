@@ -187,6 +187,7 @@ public class TimetableActivity extends AppCompatActivity {
                     Map<String, Object> data = snapshot.getData();
                     // データ取得
                     String subjectName = snapshot.contains("教科名") ? snapshot.getString("教科名") : "未設定";
+                    String classroomName = snapshot.contains("教室名") ? snapshot.getString("教室名") : "未設定";
                     String attendanceMethod1 = snapshot.contains("出席方法1") ? snapshot.getString("出席方法1") : "未設定";
                     String attendanceMethod2 = snapshot.contains("出席方法2") ? snapshot.getString("出席方法2") : "未設定";
                     String attendanceMethod3 = snapshot.contains("出席方法3") ? snapshot.getString("出席方法3") : "未設定";
@@ -199,7 +200,7 @@ public class TimetableActivity extends AppCompatActivity {
 
                     // ボタンを追加
                     Button classButton = new Button(this);
-                    classButton.setText(subjectName);
+                    classButton.setText(subjectName + "\n" + classroomName);
                     classButton.setLayoutParams(new LinearLayout.LayoutParams(
                             ViewGroup.LayoutParams.MATCH_PARENT,
                             ViewGroup.LayoutParams.MATCH_PARENT
@@ -219,6 +220,7 @@ public class TimetableActivity extends AppCompatActivity {
                         title.setText(day + "曜" + period + "限");
 
                         EditText subjectNameEdit = dialogView.findViewById(R.id.subjectName);
+                        EditText classroomNameEdit = dialogView.findViewById(R.id.classroomName);
                         Button deleteButton = dialogView.findViewById(R.id.optionButton);
                         EditText startDate = dialogView.findViewById(R.id.startDate);
                         Button detailButton = dialogView.findViewById(R.id.detailButton);
@@ -235,6 +237,7 @@ public class TimetableActivity extends AppCompatActivity {
                         Button saveButton = dialogView.findViewById(R.id.saveButton);
 
                         subjectNameEdit.setText(subjectName);
+                        classroomNameEdit.setText(classroomName);
                         attendanceMethodEdit1.setText(attendanceMethod1);
                         attendanceMethodEdit2.setText(attendanceMethod2);
                         attendanceMethodEdit3.setText(attendanceMethod3);
@@ -319,6 +322,7 @@ public class TimetableActivity extends AppCompatActivity {
 
                         saveButton.setOnClickListener(v -> {
                             String newSubjectName = subjectNameEdit.getText().toString().trim();
+                            String newClassroomName = classroomNameEdit.getText().toString().trim();
                             String newStartDate = startDate.getText().toString().trim();
                             //Map<String, Map<String, String>> startDateMap = mapDates(newStartDate);
 
@@ -339,6 +343,7 @@ public class TimetableActivity extends AppCompatActivity {
                             String classDocumentId = db.collection("class").document().getId();
                             Map<String, Object> classData = new HashMap<>();
                             classData.put("教科名", newSubjectName);
+                            classData.put("教室名", newClassroomName);
                             classData.put("授業開始日", newStartDate);
                             classData.put("出席方法1", newAttendanceMethod1.isEmpty() ? null : newAttendanceMethod1);
                             classData.put("出席方法2", newAttendanceMethod2.isEmpty() ? null : newAttendanceMethod2);
@@ -358,6 +363,7 @@ public class TimetableActivity extends AppCompatActivity {
                             // timetableコレクションに保存
                             Map<String, Object> timetableData = new HashMap<>();
                             timetableData.put("教科名", newSubjectName);
+                            timetableData.put("教室名", newClassroomName);
                             timetableData.put("授業日程", new HashMap<>());
                             timetableData.put("出席方法1", newAttendanceMethod1.isEmpty() ? null : newAttendanceMethod1);
                             timetableData.put("出席方法2", newAttendanceMethod2.isEmpty() ? null : newAttendanceMethod2);
@@ -416,6 +422,7 @@ public class TimetableActivity extends AppCompatActivity {
                         title.setText(day + "曜" + period + "限");
 
                         EditText subjectNameEdit = dialogView.findViewById(R.id.subjectName);
+                        EditText classroomNameEdit = dialogView.findViewById(R.id.classroomName);
                         Button registeredClassesButton = dialogView.findViewById(R.id.optionButton);
                         EditText startDate = dialogView.findViewById(R.id.startDate);
                         Button detailButton = dialogView.findViewById(R.id.detailButton);
@@ -506,6 +513,7 @@ public class TimetableActivity extends AppCompatActivity {
 
                         saveButton.setOnClickListener(v -> {
                             String newSubjectName = subjectNameEdit.getText().toString().trim();
+                            String newClassroomName = classroomNameEdit.getText().toString().trim();
                             String newStartDate = startDate.getText().toString().trim();
                             //Map<String, Map<String, String>> startDateMap = mapDates(newStartDate);
 
@@ -526,6 +534,7 @@ public class TimetableActivity extends AppCompatActivity {
                             String classDocumentId = db.collection("class").document().getId();
                             Map<String, Object> classData = new HashMap<>();
                             classData.put("教科名", newSubjectName);
+                            classData.put("教室名", newClassroomName);
                             classData.put("授業開始日", newStartDate);
                             classData.put("出席方法1", newAttendanceMethod1.isEmpty() ? null : newAttendanceMethod1);
                             classData.put("出席方法2", newAttendanceMethod2.isEmpty() ? null : newAttendanceMethod2);
@@ -545,6 +554,7 @@ public class TimetableActivity extends AppCompatActivity {
                             // timetableコレクションに保存
                             Map<String, Object> timetableData = new HashMap<>();
                             timetableData.put("教科名", newSubjectName);
+                            timetableData.put("教室名", newClassroomName);
                             timetableData.put("授業日程", new HashMap<>());
                             timetableData.put("出席方法1", newAttendanceMethod1.isEmpty() ? null : newAttendanceMethod1);
                             timetableData.put("出席方法2", newAttendanceMethod2.isEmpty() ? null : newAttendanceMethod2);
